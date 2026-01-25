@@ -2,6 +2,8 @@ import { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { dummyCourses } from "../assets/assets";
 import { AppContext } from "./AppContext";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import { useEffect } from "react";
 
 const AppContextProvider = ({ children }) => {
   const [allCourses, setAllCourses] = useState(() =>
@@ -13,6 +15,9 @@ const AppContextProvider = ({ children }) => {
 
   const currency = import.meta.env.VITE_CURRENCY;
   const navigate = useNavigate();
+
+  const{getToken} = useAuth();
+  const {user} =useUser();
 
   const fetchUserEnrolledCourses = async () => {
     setEnrolledCourses(dummyCourses);
@@ -26,6 +31,15 @@ const AppContextProvider = ({ children }) => {
     );
     return total / course.courseRatings.length;
   }, []);
+
+  const logToken = async () => {
+    console.log(await getToken());
+  }
+  
+  useEffect(() => {
+    if(user)  {
+      logToken();
+    }}, [user]);
 
   const value = useMemo(() => ({
     currency,

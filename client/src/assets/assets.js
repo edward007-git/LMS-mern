@@ -233,3 +233,11 @@ export const dummyTestimonial = [
       "I loved the teaching style—simple, engaging, and practical. It boosted my confidence in data analysis.",
   },
 ];
+
+
+// DUMMY DASHBOARD DATA
+export const dummyDashboardData = {
+  totalStudents: 9450,
+  totalCourses: 4,
+  totalEarnings: 284560,
+};
