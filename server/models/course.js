@@ -26,7 +26,7 @@ const courseSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
-    thumbnailUrl: { type: String }, // fixed spelling ✅
+    thumbnailUrl: { type: String }, 
     price: { type: Number, required: true },
     isPublished: { type: Boolean, default: false },
 

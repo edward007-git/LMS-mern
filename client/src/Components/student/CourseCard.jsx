@@ -15,7 +15,8 @@ const CourseCard = ({ course }) => {
     <Link
       to={`/course/${course._id}`}
       onClick={() => scrollTo(0, 0)}
-      className="border border-gray-500/30 overflow-hidden rounded-lg bg-white"
+      className="border border-gray-200 overflow-hidden rounded-2xl bg-white
+      hover:shadow-xl transition duration-300 shadow-sm"
     >
       {/* Thumbnail */}
       <img
@@ -24,9 +25,9 @@ const CourseCard = ({ course }) => {
         alt="thumbnail"
       />
 
-      <div className="p-3 text-left">
+      <div className="p-4 text-left">
         {/* Title */}
-        <h3 className="text-base font-semibold line-clamp-2">
+        <h3 className="text-base font-semibold text-gray-900 line-clamp-2">
           {course.courseTitle}
         </h3>
 
@@ -36,8 +37,8 @@ const CourseCard = ({ course }) => {
         </p>
 
         {/* Rating with star icon */}
-        <div className="flex items-center gap-2 mt-2">
-          <p className="text-sm">4.5</p>
+        <div className="flex items-center gap-2 mt-3">
+          <p className="text-sm text-gray-700">4.5</p>
 
           <div className="flex">
             {[...Array(5)].map((_, i) => (
@@ -45,16 +46,16 @@ const CourseCard = ({ course }) => {
                 key={i}
                 src={assets.star}
                 alt="star"
-                className="w-4 h-4"
+                className="w-4 h-4 opacity-90"
               />
             ))}
           </div>
 
-          <p className="text-gray-500 text-sm">(22)</p>
+          <p className="text-gray-400 text-sm">(22)</p>
         </div>
 
         {/* Price */}
-        <p className="text-base font-semibold text-gray-800 mt-2">
+        <p className="text-base font-semibold text-blue-600 mt-3">
           {currency}
           {finalPrice}
         </p>
@@ -63,5 +64,4 @@ const CourseCard = ({ course }) => {
   )
 }
 
-export default CourseCard;
-
+export default CourseCard

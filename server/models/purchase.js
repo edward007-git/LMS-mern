@@ -1,0 +1,16 @@
+import mongoose from "mongoose";
+
+const purchaseSchema = new mongoose.Schema(
+  {
+    courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
+    userId: { type: String, required: true },
+    purchaseDate: { type: Date, default: Date.now },
+    amount: { type: Number, required: true },
+    status: { type: String, enum: ["completed", "pending", "failed"], default: "pending" },
+  },
+  { timestamps: true }
+);
+
+const Purchase = mongoose.models.Purchase || mongoose.model("Purchase", purchaseSchema);
+
+export default Purchase;

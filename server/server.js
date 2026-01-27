@@ -7,16 +7,23 @@ import clerkWebhooks from "./controllers/webhooks.js";
 import { clerkMiddleware } from "@clerk/express";
 import educatorRouter from "./routes/educatorRoutes.js";
 import connectCloudinary from "./config/cloudinary.js";
-
+import courseRouter from "./routes/courseRoute.js";
+import userRouter from "./routes/userRoute.js"; 
 const app = express();
 
 await connectDB();
 await connectCloudinary();
 
-app.use(cors());
+app.use(cors(
+  {
+    origin: "https://studyxlms.vercel.app/",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  }
+));
 app.use(clerkMiddleware());
 
-// ✅ Webhook route must come BEFORE express.json()
+// Webhook route must come BEFORE express.json()
 app.post(
   "/api/webhooks/clerk",
   express.raw({ type: "application/json" }),
@@ -29,6 +36,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // ✅ Routes
 app.use("/api/educator", educatorRouter);
+app.use("/api/courses", courseRouter);
+app.use("/api/user", userRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
