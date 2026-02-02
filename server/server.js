@@ -10,17 +10,11 @@ import connectCloudinary from "./config/cloudinary.js";
 import courseRouter from "./routes/courseRoute.js";
 import userRouter from "./routes/userRoute.js"; 
 const app = express();
-
+import mongoose from "mongoose";
 await connectDB();
 await connectCloudinary();
 
-app.use(cors(
-  {
-    origin: "https://studyxlms.vercel.app/",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  }
-));
+app.use(cors());
 app.use(clerkMiddleware());
 
 // Webhook route must come BEFORE express.json()
@@ -38,6 +32,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/educator", educatorRouter);
 app.use("/api/courses", courseRouter);
 app.use("/api/user", userRouter);
+console.log("Connected DB:", mongoose.connection.name);
+
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

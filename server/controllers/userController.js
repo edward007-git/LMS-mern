@@ -1,7 +1,7 @@
 import User from "../models/User.js";
 import Course from "../models/course.js";
 import Stripe from "stripe";
-import Purchase from "../models/Purchase.js";
+import Purchase from "../models/purchase.js";
 
 // Get User Data
 export const getUserData = async (req, res) => {
@@ -49,12 +49,20 @@ export const userEnrolledCourses = async (req, res) => {
 // Purchase course
 export const purchaseCourse = async (req, res) => {
   try {
-    const { courseId } = req.body;
-    const { origin } = req.headers;
-
     const { userId } = req.auth();
+    const { courseId } = req.body;
+
+    const origin =
+      req.headers.origin ||
+      process.env.FRONTEND_URL ||
+      "http://localhost:3000";
+
     if (!userId) {
-      return res.status(401).json({ success: false, message: "Unauthorized - userId missing" });
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    if (!courseId) {
+      return res.status(400).json({ success: false, message: "courseId required" });
     }
 
     const userData = await User.findById(userId);
@@ -68,39 +76,49 @@ export const purchaseCourse = async (req, res) => {
       return res.status(404).json({ success: false, message: "Course not found" });
     }
 
-    const amount = (
-      courseData.coursePrice -
-      (courseData.discountPrice * courseData.coursePrice) / 100
-    ).toFixed(2);
+    if (userData.enrolledCourses.some(id => id.toString() === courseId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Already enrolled",
+      });
+    }
 
-    const purchaseData = {
+    const price = Number(courseData.price);
+    const discount = Number(courseData.discount || 0);
+
+    const amount = price - (discount * price) / 100;
+
+    if (isNaN(amount) || amount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid course price or discount",
+      });
+    }
+
+    const newPurchase = await Purchase.create({
       courseId: courseData._id,
       userId,
       amount,
       status: "pending",
-    };
+    });
 
-    const newPurchase = await Purchase.create(purchaseData);
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const currency = (process.env.CURRENCY || "inr").toLowerCase();
 
-    const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const currency = process.env.CURRENCY.toLowerCase();
-
-    const lineItems = [
-      {
-        price_data: {
-          currency,
-          product_data: { name: courseData.courseTitle },
-          unit_amount: Math.floor(Number(newPurchase.amount) * 100),
-        },
-        quantity: 1,
-      },
-    ];
-
-    const session = await stripeInstance.checkout.sessions.create({
+    const session = await stripe.checkout.sessions.create({
       success_url: `${origin}/loading/my-enrollments`,
       cancel_url: `${origin}/`,
-      line_items: lineItems,
       mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency,
+            product_data: { name: courseData.title },
+            unit_amount: Math.round(amount * 100),
+          },
+          quantity: 1,
+        },
+      ],
       metadata: {
         purchaseId: newPurchase._id.toString(),
       },
@@ -111,4 +129,3 @@ export const purchaseCourse = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
