@@ -1,7 +1,7 @@
 import { Webhook } from "svix";
 import Stripe from "stripe";
 import User from "../models/User.js";
-import purchase from "../models/purchase.js";
+import Purchase from "../models/purchase.js";
 import Course from "../models/course.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -72,7 +72,7 @@ export const stripeWebhooks = async (req, res) => {
       const session = event.data.object;
       const purchaseId = session.metadata.purchaseId;
 
-      const purchaseData = await purchase.findById(purchaseId);
+      const purchaseData = await Purchase.findById(purchaseId);
       if (!purchaseData) break;
 
       const userData = await User.findById(purchaseData.userId);
