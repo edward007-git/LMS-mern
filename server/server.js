@@ -19,10 +19,13 @@ await connectCloudinary();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: [
+      process.env.FRONTEND_URL || "https://studyxlms.vercel.app/"
+    ],
     credentials: true,
   })
 );
+
 
 
 app.use(clerkMiddleware());
