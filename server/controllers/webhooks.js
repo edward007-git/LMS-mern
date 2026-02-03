@@ -72,7 +72,7 @@ export const stripeWebhooks = async (req, res) => {
       const session = event.data.object;
       const purchaseId = session.metadata.purchaseId;
 
-      const purchaseData = await Purchase.findById(purchaseId);
+      const purchaseData = await purchase.findById(purchaseId);
       if (!purchaseData) break;
 
       const userData = await User.findById(purchaseData.userId);
